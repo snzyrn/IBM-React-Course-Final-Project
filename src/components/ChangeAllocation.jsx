@@ -1,22 +1,49 @@
 import * as React from "react";
+import { useContext } from "react";
 import Box from "@mui/material/Box";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import { AppContext } from "../context/AppContext";
 
 const ChangeAllocation = () => {
-  const [department, setDepartment] = React.useState("");
+  const { currency, dispatch, remainingBudget, totalAllocation } =
+    useContext(AppContext);
 
-  const handleChange = (event) => {
+  const [department, setDepartment] = React.useState("");
+  const [actionType, setActionType] = React.useState("");
+  const [amount, setAmount] = React.useState(0);
+
+  const handleDepartmentChange = (event) => {
     setDepartment(event.target.value);
   };
 
-  const [allocation, setAllocation] = React.useState("");
+  const handleActionChange = (event) => {
+    setActionType(event.target.value);
+  };
 
-  const handleAllocation = (event) => {
-    setAllocation(event.target.value);
+  const handleAmountChange = (event) => {
+    setAmount(Number(event.target.value));
+  };
+
+  const handleSave = () => {
+    if (remainingBudget >= totalAllocation) {
+      if (actionType === "Add") {
+        dispatch({
+          type: "ADD_ALLOCATION",
+          payload: { name: department, budget: amount },
+        });
+      } else if (actionType === "Reduce") {
+        dispatch({
+          type: "RED_ALLOCATION",
+          payload: { name: department, budget: amount },
+        });
+      }
+    } else {
+      alert("You have exceeded the budget.");
+    }
   };
 
   return (
@@ -27,7 +54,7 @@ const ChangeAllocation = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-start",
-            gap: "30px",
+            gap: "40px",
           }}
         >
           {/* Department */}
@@ -54,18 +81,18 @@ const ChangeAllocation = () => {
             <FormControl sx={{ minWidth: 120 }}>
               <Select
                 value={department}
-                onChange={handleChange}
+                onChange={handleDepartmentChange}
                 displayEmpty
                 inputProps={{ "aria-label": "Without label" }}
               >
                 <MenuItem value="">
                   <em>Choose</em>
                 </MenuItem>
-                <MenuItem value={10}>Marketing</MenuItem>
-                <MenuItem value={20}>Finance</MenuItem>
-                <MenuItem value={30}>Sales</MenuItem>
-                <MenuItem value={30}>Human Resource</MenuItem>
-                <MenuItem value={30}>IT</MenuItem>
+                <MenuItem value={"Marketing"}>Marketing</MenuItem>
+                <MenuItem value={"Finance"}>Finance</MenuItem>
+                <MenuItem value={"Sales"}>Sales</MenuItem>
+                <MenuItem value={"HumanResource"}>Human Resource</MenuItem>
+                <MenuItem value={"IT"}>IT</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -93,16 +120,16 @@ const ChangeAllocation = () => {
             </label>
             <FormControl sx={{ minWidth: 120 }}>
               <Select
-                value={allocation}
-                onChange={handleAllocation}
+                value={actionType}
+                onChange={handleActionChange}
                 displayEmpty
                 inputProps={{ "aria-label": "Without label" }}
               >
                 <MenuItem value="">
                   <em>Choose</em>
                 </MenuItem>
-                <MenuItem value={10}>Add</MenuItem>
-                <MenuItem value={20}>Reduce</MenuItem>
+                <MenuItem value="Add">Add</MenuItem>
+                <MenuItem value="Reduce">Reduce</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -120,10 +147,12 @@ const ChangeAllocation = () => {
                 fontWeight: "bold",
               }}
             >
-              £
+              {currency}
             </label>
             <TextField
-              required
+              type="number"
+              inputProps={{ step: "10" }}
+              onChange={handleAmountChange}
               sx={{
                 "& .MuiInputBase-root": {
                   height: 40,
@@ -135,7 +164,9 @@ const ChangeAllocation = () => {
           </Box>
 
           {/* Save Button */}
-          <Button variant="contained">Save</Button>
+          <Button variant="contained" onClick={handleSave}>
+            Save
+          </Button>
         </Box>
       </Box>
     </div>

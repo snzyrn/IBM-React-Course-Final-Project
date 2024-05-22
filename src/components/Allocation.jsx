@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useContext } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -6,56 +6,51 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import IconButton from "@mui/material/IconButton";
 import { IoAddCircleSharp } from "react-icons/io5";
 import { TiDelete } from "react-icons/ti";
 import { IoMdRemoveCircle } from "react-icons/io";
+import { AppContext } from "../context/AppContext";
 
-const Allocation = () => {
-  function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-  }
+const Allocation = (props) => {
+  const { dispatch, currency, allocations } = useContext(AppContext);
+
+  const handleDeleteItem = (name) => {
+    dispatch({ type: "DELETE_ITEM", payload: { name } });
+  };
+
+  const handleIncrease = (name) => {
+    dispatch({ type: "ADD_ALLOCATION", payload: { name, budget: 10 } });
+  };
+
+  const handleDecrease = (name) => {
+    dispatch({ type: "RED_ALLOCATION", payload: { name, budget: 10 } });
+  };
 
   const addIconStyle = { color: "#4FAD5B", fontSize: "24px" };
   const removeIconStyle = { color: "#AF1D11", fontSize: "24px" };
   const deleteIconStyle = { fontSize: "24px" };
 
-  const rows = [
-    createData(
-      "Marketing",
-      159,
-      <IoAddCircleSharp style={addIconStyle} />,
-      <IoMdRemoveCircle style={removeIconStyle} />,
-      <TiDelete style={deleteIconStyle} />
+  const rows = allocations.map((allocation) => ({
+    name: allocation.name,
+    budget: currency + allocation.budget,
+    add: (
+      <IconButton onClick={() => handleIncrease(allocation.name)}>
+        <IoAddCircleSharp style={addIconStyle} />
+      </IconButton>
     ),
-    createData(
-      "Finance",
-      237,
-      <IoAddCircleSharp style={addIconStyle} />,
-      <IoMdRemoveCircle style={removeIconStyle} />,
-      <TiDelete style={deleteIconStyle} />
+    remove: (
+      <IconButton onClick={() => handleDecrease(allocation.name)}>
+        <IoMdRemoveCircle style={removeIconStyle} />
+      </IconButton>
     ),
-    createData(
-      "Sales",
-      262,
-      <IoAddCircleSharp style={addIconStyle} />,
-      <IoMdRemoveCircle style={removeIconStyle} />,
-      <TiDelete style={deleteIconStyle} />
+    del: (
+      <IconButton onClick={() => handleDeleteItem(allocation.name)}>
+        <TiDelete style={deleteIconStyle} />
+      </IconButton>
     ),
-    createData(
-      "Human Resource",
-      305,
-      <IoAddCircleSharp style={addIconStyle} />,
-      <IoMdRemoveCircle style={removeIconStyle} />,
-      <TiDelete style={deleteIconStyle} />
-    ),
-    createData(
-      "IT",
-      356,
-      <IoAddCircleSharp style={addIconStyle} />,
-      <IoMdRemoveCircle style={removeIconStyle} />,
-      <TiDelete style={deleteIconStyle} />
-    ),
-  ];
+  }));
+
   return (
     <div>
       <TableContainer component={Paper}>
@@ -86,10 +81,10 @@ const Allocation = () => {
                 <TableCell component="th" scope="row">
                   {row.name}
                 </TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
-                <TableCell align="right">{row.fat}</TableCell>
-                <TableCell align="right">{row.carbs}</TableCell>
-                <TableCell align="right">{row.protein}</TableCell>
+                <TableCell align="right">{row.budget}</TableCell>
+                <TableCell align="right">{row.add}</TableCell>
+                <TableCell align="right">{row.remove}</TableCell>
+                <TableCell align="right">{row.del}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -1,4 +1,4 @@
-# Budget Alloaction App
+# Budget Allocation App
 
 This is a project for IBM's Developing Front-End Apps with React course. A budget allocation application using React and Metarial UI.
 
